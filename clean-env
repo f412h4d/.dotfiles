@@ -1,0 +1,8 @@
+#!/usr/bin/env zsh
+pushd $DOTFILES || exit 1
+for folder in $(echo $STOW_FOLDERS | tr ',' ' ')
+do
+    echo "Removing $folder"
+    stow -D $folder
+done
+popd || exit 1

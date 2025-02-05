@@ -1,0 +1,8 @@
+#!/usr/bin/env zsh
+
+DOTFILES=${DOTFILES:-$HOME/.dotfiles}
+
+STOW_FOLDERS="bin,nvim,tmux,zsh"
+
+# Execute the install script
+STOW_FOLDERS=$STOW_FOLDERS DOTFILES=$DOTFILES $DOTFILES/install

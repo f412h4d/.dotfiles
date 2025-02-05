@@ -1,0 +1,73 @@
+export XDG_CONFIG_HOME=$HOME/.config
+VIM="nvim"
+
+source /usr/share/doc/fzf/examples/key-bindings.zsh
+source /usr/share/doc/fzf/examples/completion.zsh
+
+export CC="clang-12"
+export CXX="clang++-12"
+export PYTHONBREAKPOINT="pudb.set_trace"
+export GIT_EDITOR=$VIM
+export DOTFILES=$HOME/.dotfiles
+# Nextflow
+# export NF_IDFILE=$HOME/.idfile
+
+# export GOPATH=$HOME/go
+# export DENO_INSTALL="$HOME/.deno"
+
+addToPathFront $HOME/.local/.npm-global/bin
+addToPathFront $HOME/.local/scripts
+addToPathFront $HOME/.local/bin
+# addToPathFront $HOME/.zig
+# addToPathFront $HOME/.local/go/bin
+# addToPathFront $HOME/go/bin
+# addToPathFront $HOME/.deno/bin
+
+# Where should I put you?
+bindkey -s ^f "tmux-sessionizer\n"
+
+# Brew
+export BREW_HOME="/opt/homebrew"
+export PATH="$BREW_HOME/bin:$PATH"
+# Brew end
+
+catr() {
+    tail -n "+$1" $3 | head -n "$(($2 - $1 + 1))"
+}
+
+cat1Line() {
+    cat $1 | tr -d "\n"
+}
+
+validateYaml() {
+    python -c 'import yaml,sys;yaml.safe_load(sys.stdin)' < $1
+}
+
+addThrottle() {
+    local kbs="kbps"
+    echo $kbs
+    echo "About to throttle to $1 $kbs"
+    echo "sudo tc qdisc add dev wlp59s0 handle 1: root htb default 11"
+    echo "sudo tc class add dev wlp59s0 parent 1: classid 1:1 htb rate $1$kbs"
+    echo "sudo tc class add dev wlp59s0 parent 1:1 classid 1:11 htb rate $1$kbs"
+    sudo tc qdisc add dev wlp59s0 handle 1: root htb default 11
+    sudo tc class add dev wlp59s0 parent 1: classid 1:1 htb rate $1$kbs
+    sudo tc class add dev wlp59s0 parent 1:1 classid 1:11 htb rate $1$kbs
+}
+
+removeThrottle() {
+    sudo tc qdisc del dev wlp59s0 root
+}
+
+ioloop() {
+    FIFO=$(mktemp -u /tmp/ioloop_$$_XXXXXX ) &&
+    trap "rm -f $FIFO" EXIT &&
+    mkfifo $FIFO &&
+    ( : <$FIFO & ) &&    # avoid deadlock on opening pipe
+    exec >$FIFO <$FIFO
+}
+
+eslintify() {
+    cat $1 > /tmp/file_to_eslint
+    npx eslint
+}
